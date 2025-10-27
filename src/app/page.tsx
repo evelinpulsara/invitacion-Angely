@@ -524,7 +524,7 @@ export default function XVInvitation() {
         {/* Timeline - Versión móvil (como en la foto) */}
         <div className="max-w-6xl mx-auto px-4 py-6 mb-12">
           <div className="bg-white/30 backdrop-blur-md rounded-3xl p-6 shadow-lg border border-white/30">
-            <h4 className="text-center text-lg font-semibold text-green-900 mb-6">Programa (resumen)</h4>
+            <h4 className="text-center text-lg font-semibold text-green-900 mb-6">Programación</h4>
 
             {/* Versión móvil (visible en todos los dispositivos) */}
             <div className="space-y-3">

@@ -35,6 +35,9 @@ export default function XVInvitation() {
           minutes: Math.floor((difference / 1000 / 60) % 60),
           seconds: Math.floor((difference / 1000) % 60),
         });
+      } else {
+        // Si la fecha ya pasó, establece todo en 0
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     };
 
@@ -354,19 +357,29 @@ export default function XVInvitation() {
           />
         </div>
 
-        {/* Countdown — subido más cerca del reproductor */}
+        {/* Countdown o mensaje de finalización */}
         <div className="max-w-4xl mx-auto px-4 py-6 text-center">
-          <div className="mb-6 flex justify-center gap-2 items-center">
-            <Heart size={28} className="text-green-500" />
-            <h3 className="text-3xl text-green-900 font-serif">Faltan</h3>
-            <Heart size={28} className="text-green-500" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 justify-items-center">
-            <TimeBox value={timeLeft.days} label="Días" />
-            <TimeBox value={timeLeft.hours} label="Horas" />
-            <TimeBox value={timeLeft.minutes} label="Minutos" />
-            <TimeBox value={timeLeft.seconds} label="Segundos" />
-          </div>
+          {timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0 ? (
+            <div className="mb-6">
+              <p className="text-xl md:text-2xl font-serif text-green-800 font-medium">
+                ¡El evento ya finalizó!
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-6 flex justify-center gap-2 items-center">
+                <Heart size={28} className="text-green-500" />
+                <h3 className="text-3xl text-green-900 font-serif">Faltan</h3>
+                <Heart size={28} className="text-green-500" />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 justify-items-center">
+                <TimeBox value={timeLeft.days} label="Días" />
+                <TimeBox value={timeLeft.hours} label="Horas" />
+                <TimeBox value={timeLeft.minutes} label="Minutos" />
+                <TimeBox value={timeLeft.seconds} label="Segundos" />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Foto Principal - MUY LARGA Y SIN RECORTES */}
@@ -398,13 +411,13 @@ export default function XVInvitation() {
             {/* Imagen 1: Bebé con gafas */}
             <div 
               className="group cursor-pointer relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
-              onClick={() => openModal('/imagenes/foto2.jpeg')}
+              onClick={() => openModal('/imagenes/foto2.jpg')}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
               <img 
-                src="/imagenes/foto2.jpeg" 
+                src="/imagenes/foto2.jpg" 
                 alt="Recuerdo de infancia 1" 
-                className="w-full h-80 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-64 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="bg-white/90 p-3 rounded-full shadow-lg">
@@ -422,7 +435,7 @@ export default function XVInvitation() {
               <img 
                 src="/imagenes/Foto1.jpg" 
                 alt="Recuerdo de infancia 2" 
-                className="w-full h-80 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-64 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="bg-white/90 p-3 rounded-full shadow-lg">

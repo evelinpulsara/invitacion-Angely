@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { MapPin, MessageCircle, Play, Pause, SkipBack, SkipForward, Heart, Volume2, VolumeX, Gift, Crown, Flower2, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, MessageCircle, Play, Pause, SkipBack, SkipForward, Heart, Volume2, VolumeX, Gift, Crown, Flower2 } from 'lucide-react';
 
 export default function XVInvitation() {
   const [timeLeft, setTimeLeft] = useState({
@@ -14,14 +14,12 @@ export default function XVInvitation() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.5);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImageSrc, setModalImageSrc] = useState('');
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [processedSapo, setProcessedSapo] = useState<string | null>(null);
   const [processedTiana, setProcessedTiana] = useState<string | null>(null);
-
-  // Lista de recuerdos: solo dos fotos
-  const recuerdoFiles = ['Foto2.jpeg', 'Foto1.jpg'];
 
   // Countdown Timer
   useEffect(() => {
@@ -84,12 +82,10 @@ export default function XVInvitation() {
   const handleWhatsapp = () => {
     const phone = '+573113024672';
     const message = 'Hola, confirmo mi asistencia a la fiesta de XV años de Angely 🎉😸';
-    // ✅ CORREGIDO: sin espacios
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handleMaps = () => {
-    // ✅ CORREGIDO: sin espacios
     window.open(
       'https://www.google.com/maps/search/Hacienda+Cuatro+Santos,+Pasto,+Nariño,+Colombia',
       '_blank'
@@ -105,12 +101,14 @@ export default function XVInvitation() {
     </div>
   );
 
+  // FUNCIÓN MOVIDA AQUÍ (antes del return)
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Convierte los píxeles casi blancos a transparentes usando canvas
   const processImageToCutout = async (src: string, tolerance = 200) => {
     return new Promise<string>((resolve, reject) => {
       const img = new Image();
@@ -129,8 +127,9 @@ export default function XVInvitation() {
             const r = data[i];
             const g = data[i + 1];
             const b = data[i + 2];
+            // si el pixel es suficientemente claro (casi blanco) lo hacemos transparente
             if (r >= tolerance && g >= tolerance && b >= tolerance) {
-              data[i + 3] = 0;
+              data[i + 3] = 0; // alpha
             }
           }
           ctx.putImageData(imgData, 0, 0);
@@ -146,11 +145,13 @@ export default function XVInvitation() {
   };
 
   useEffect(() => {
+    // procesa las imágenes al montar el componente; tolerancia ajustada para eliminar más el fondo
     (async () => {
       try {
         const sapoData = await processImageToCutout('/imagenes/sapo.png', 200);
         setProcessedSapo(sapoData);
       } catch (e) {
+        // si falla, no bloqueamos la app
         console.warn('Procesamiento sapo falló', e);
       }
       try {
@@ -162,17 +163,34 @@ export default function XVInvitation() {
     })();
   }, []);
 
-  // Funciones para navegar en el visor
-  const openImage = (index: number) => setSelectedImageIndex(index);
-  const closeImage = () => setSelectedImageIndex(null);
-  const nextImage = () => {
-    if (selectedImageIndex !== null) {
-      setSelectedImageIndex((selectedImageIndex + 1) % recuerdoFiles.length);
-    }
+  // Función para abrir el modal con la imagen seleccionada
+  const openModal = (src: string) => {
+    setModalImageSrc(src);
+    setIsModalOpen(true);
+    document.body.style.overflow = 'hidden'; // Evita scroll en el fondo
   };
-  const prevImage = () => {
-    if (selectedImageIndex !== null) {
-      setSelectedImageIndex((selectedImageIndex - 1 + recuerdoFiles.length) % recuerdoFiles.length);
+
+  // Función para cerrar el modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    document.body.style.overflow = 'auto'; // Restaura el scroll
+  };
+
+  // Cerrar modal al presionar ESC
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        closeModal();
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isModalOpen]);
+
+  // Cerrar modal al hacer clic fuera de la imagen
+  const handleModalClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).classList.contains('modal-overlay')) {
+      closeModal();
     }
   };
 
@@ -183,11 +201,9 @@ export default function XVInvitation() {
         backgroundImage: "url('/imagenes/Fondo.jpeg')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        willChange: 'transform', 
-        // backgroundAttachment: 'scroll' es el valor por defecto → fondo se mueve con scroll
       }}
-      
     >
+      {/* Contenedor interno con gradiente y padding */}
       <div className="min-h-screen bg-gradient-to-b from-white/70 via-white/60 to-white/70">
 
         <div className="fixed top-10 left-10 opacity-20 hidden sm:block">
@@ -209,6 +225,7 @@ export default function XVInvitation() {
               <img src="/imagenes/tiara.png" alt="Tiara" className="w-40 md:w-48 lg:w-56 object-contain drop-shadow-lg" />
             </div>
 
+            {/* Texto "MIS XV AÑOS" en plateado oscuro metálico */}
             <p className="text-2xl md:text-3xl tracking-widest font-semibold mb-2" 
                style={{ 
                  fontFamily: 'Georgia, serif', 
@@ -234,6 +251,7 @@ export default function XVInvitation() {
               XV AÑOS
             </h1>
             
+            {/* Nombre "Angely Tatiana" en plateado oscuro metálico */}
             <div className="relative inline-block mb-4">
               <div className="absolute inset-0 bg-gradient-to-r from-silver-200 to-silver-300 rounded-full blur-xl opacity-30"></div>
               <h2 className="relative text-6xl italic font-light px-8 py-4" 
@@ -336,7 +354,7 @@ export default function XVInvitation() {
           />
         </div>
 
-        {/* Countdown */}
+        {/* Countdown — subido más cerca del reproductor */}
         <div className="max-w-4xl mx-auto px-4 py-6 text-center">
           <div className="mb-6 flex justify-center gap-2 items-center">
             <Heart size={28} className="text-green-500" />
@@ -351,7 +369,7 @@ export default function XVInvitation() {
           </div>
         </div>
 
-        {/* Foto Principal */}
+        {/* Foto Principal - MUY LARGA Y SIN RECORTES */}
         <div className="px-4 max-w-4xl mx-auto mb-8 mt-12">
           <div className="flex flex-col items-center gap-8">
             <div className="relative group">
@@ -367,23 +385,50 @@ export default function XVInvitation() {
           </div>
         </div>
 
-        {/* Sección de Recuerdos de Infancia - SOLO 2 FOTOS */}
-        <div className="px-4 max-w-4xl mx-auto mb-8">
-          <div className="text-center mb-4">
-            <p className="text-green-700 text-sm font-semibold uppercase tracking-widest mb-4">Recuerdos de mi infancia</p>
-            <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
-              {recuerdoFiles.map((file, idx) => (
-                <div key={idx} className="group relative cursor-pointer" onClick={() => openImage(idx)}>
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-300 to-emerald-300 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
-                  <div className="relative w-24 h-24 bg-white rounded-2xl shadow-lg overflow-hidden border-3 border-green-200 hover:border-green-400 transition-all transform hover:scale-105">
-                    <img
-                      src={`/imagenes/${file}`}
-                      alt={`Recuerdo ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+        {/* NUEVA SECCIÓN: RECUERDOS DE MI INFANCIA */}
+        <div className="max-w-4xl mx-auto px-4 py-12">
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-serif font-bold text-green-800 uppercase tracking-wider" style={{ fontFamily: 'Georgia, serif' }}>
+              Recuerdos de mi infancia
+            </h3>
+            <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-emerald-500 mx-auto mt-4 rounded-full"></div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Imagen 1: Bebé con gafas */}
+            <div 
+              className="group cursor-pointer relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+              onClick={() => openModal('/imagenes/foto2.jpeg')}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+              <img 
+                src="/imagenes/foto2.jpeg" 
+                alt="Recuerdo de infancia 1" 
+                className="w-full h-80 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 p-3 rounded-full shadow-lg">
+                  <Play size={24} className="text-green-700" />
                 </div>
-              ))}
+              </div>
+            </div>
+
+            {/* Imagen 2: Bebé con vestido verde */}
+            <div 
+              className="group cursor-pointer relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+              onClick={() => openModal('/imagenes/Foto1.jpg')}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+              <img 
+                src="/imagenes/Foto1.jpg" 
+                alt="Recuerdo de infancia 2" 
+                className="w-full h-80 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 p-3 rounded-full shadow-lg">
+                  <Play size={24} className="text-green-700" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -445,7 +490,7 @@ export default function XVInvitation() {
           </div>
         </div>
 
-        {/* Fecha y hora */}
+        {/* Fecha y hora - SECCIÓN MEJORADA CON GIF */}
         <div className="text-center py-12 w-full max-w-4xl mx-auto relative">
           <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10">
             <img 
@@ -474,7 +519,9 @@ export default function XVInvitation() {
               </div>
             </div>
 
+            {/* Contenedor principal de fecha */}
             <div className="flex items-center justify-center gap-4 sm:gap-8 my-12 relative">
+              {/* SÁBADO */}
               <div className="flex flex-col items-center min-w-[80px] sm:min-w-[120px] relative py-3">
                 <div className="absolute top-0 left-1/2 w-12 h-px bg-gradient-to-r from-transparent via-green-400 to-transparent transform -translate-x-1/2"></div>
                 <p className="font-serif text-base sm:text-xl font-medium tracking-[0.2em] text-green-800 uppercase">
@@ -483,6 +530,7 @@ export default function XVInvitation() {
                 <div className="absolute bottom-0 left-1/2 w-12 h-px bg-gradient-to-r from-transparent via-green-400 to-transparent transform -translate-x-1/2"></div>
               </div>
 
+              {/* DÍA 15 - Elemento central */}
               <div className="text-center relative">
                 <div className="text-[6rem] sm:text-[8rem] md:text-[10rem] lg:text-[14rem] leading-none font-serif font-light bg-gradient-to-b from-green-800 to-green-600 bg-clip-text text-transparent relative z-10"
                      style={{filter: 'drop-shadow(0 4px 8px rgba(45, 80, 22, 0.15))'}}>
@@ -496,6 +544,7 @@ export default function XVInvitation() {
                 </div>
               </div>
 
+              {/* 3:00 PM */}
               <div className="flex flex-col items-center min-w-[80px] sm:min-w-[120px] relative py-3">
                 <div className="absolute top-0 left-1/2 w-12 h-px bg-gradient-to-r from-transparent via-green-400 to-transparent transform -translate-x-1/2"></div>
                 <p className="font-serif text-base sm:text-xl font-medium tracking-[0.2em] text-green-800 uppercase">
@@ -505,6 +554,7 @@ export default function XVInvitation() {
               </div>
             </div>
             
+            {/* 2025 */}
             <div className="mt-12">
               <div className="relative h-6 mb-4">
                 <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-green-300 to-transparent transform -translate-y-1/2"></div>
@@ -515,6 +565,7 @@ export default function XVInvitation() {
               </h3>
             </div>
 
+            {/* Línea decorativa final */}
             <div className="mt-8 flex items-center justify-center">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-px bg-gradient-to-r from-transparent to-green-300"></div>
@@ -538,10 +589,12 @@ export default function XVInvitation() {
               />
         </div>
 
-        {/* Timeline - Versión móvil */}
+        {/* Timeline - Versión móvil (como en la foto) */}
         <div className="max-w-6xl mx-auto px-4 py-6 mb-12">
           <div className="bg-white/30 backdrop-blur-md rounded-3xl p-6 shadow-lg border border-white/30">
             <h4 className="text-center text-lg font-semibold text-green-900 mb-6">Programa (resumen)</h4>
+
+            {/* Versión móvil (visible en todos los dispositivos) */}
             <div className="space-y-3">
               <div className="flex items-center gap-4 bg-green-50/70 p-3 rounded-xl">
                 <div className="bg-green-50 p-2 rounded-full shadow-md">
@@ -563,6 +616,7 @@ export default function XVInvitation() {
                 </div>
               </div>
 
+              {/* CORRECCIÓN: Cambiado de emoji a ícono Gift */}
               <div className="flex items-center gap-4 bg-green-50/70 p-3 rounded-xl">
                 <div className="bg-green-50 p-2 rounded-full shadow-md">
                   <Gift size={20} className="text-green-900" />
@@ -668,7 +722,7 @@ export default function XVInvitation() {
           </button>
         </div>
 
-        {/* Footer */}
+        {/* Footer Texto Fijo */}
         <div className="text-center py-6">
           <div className="flex justify-center gap-6 mb-4">
             <Flower2 size={36} className="text-green-500" />
@@ -679,43 +733,26 @@ export default function XVInvitation() {
           <p className="text-xs text-green-600 font-medium mt-2">Diseñado por: Evelin Pulsara</p>
         </div>
 
-        {/* Modal de foto ampliada con navegación */}
-        {selectedImageIndex !== null && (
+        {/* Modal de Imagen */}
+        {isModalOpen && (
           <div 
-            className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={closeImage}
+            className="modal-overlay fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+            onClick={handleModalClick}
           >
-            <div className="relative max-w-4xl w-full max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-              {/* Botón de cerrar */}
-              <button
-                onClick={closeImage}
-                className="absolute top-4 right-4 text-white bg-black/30 rounded-full p-2 z-10 hover:bg-black/50 transition-colors"
+            <div className="modal-content relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-4">
+              <button 
+                onClick={closeModal}
+                className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-colors"
               >
-                <X size={28} />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
-
-              {/* Flecha izquierda */}
-              <button
-                onClick={(e) => { e.stopPropagation(); prevImage(); }}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white bg-black/30 rounded-full p-2 z-10 hover:bg-black/50 transition-colors"
-              >
-                <ChevronLeft size={32} />
-              </button>
-
-              {/* Flecha derecha */}
-              <button
-                onClick={(e) => { e.stopPropagation(); nextImage(); }}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black/30 rounded-full p-2 z-10 hover:bg-black/50 transition-colors"
-              >
-                <ChevronRight size={32} />
-              </button>
-
-              {/* Imagen */}
-              <div className="flex justify-center items-center h-full">
-                <img
-                  src={`/imagenes/${recuerdoFiles[selectedImageIndex]}`}
-                  alt={`Recuerdo ampliado ${selectedImageIndex + 1}`}
-                  className="max-w-full max-h-[80vh] object-contain rounded-lg"
+              <div className="flex justify-center items-center">
+                <img 
+                  src={modalImageSrc} 
+                  alt="Recuerdo de infancia" 
+                  className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-lg"
                 />
               </div>
             </div>
@@ -724,22 +761,74 @@ export default function XVInvitation() {
 
         <style jsx>{`
           @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
           }
+
           @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            0%, 100% {
+              transform: translateY(0px);
+            }
+            50% {
+              transform: translateY(-10px);
+            }
           }
+
           @keyframes glowPulse {
             0% { box-shadow: 0 0 6px rgba(123,189,137,0.12), inset 0 0 12px rgba(255,210,120,0.02); }
             50% { box-shadow: 0 0 28px rgba(123,189,137,0.28), inset 0 0 24px rgba(255,210,120,0.04); }
             100% { box-shadow: 0 0 6px rgba(123,189,137,0.12), inset 0 0 12px rgba(255,210,120,0.02); }
           }
-          .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; }
-          .animate-float { animation: float 3s ease-in-out infinite; }
-          .main-photo-container { border-radius: 1rem; overflow: hidden; }
-          .main-photo-glow { animation: glowPulse 4s infinite ease-in-out; }
+
+          .animate-fadeIn {
+            animation: fadeIn 0.3s ease-in-out;
+          }
+
+          .animate-float {
+            animation: float 3s ease-in-out infinite;
+          }
+
+          .main-photo-container {
+            border-radius: 1rem;
+            overflow: hidden;
+          }
+
+          .main-photo-glow {
+            animation: glowPulse 4s infinite ease-in-out;
+          }
+
+          /* Estilos para el modal */
+          .modal-overlay {
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.8) 100%);
+          }
+
+          .modal-content {
+            animation: slideIn 0.3s ease-out;
+          }
+
+          @keyframes slideIn {
+            from {
+              transform: scale(0.95);
+              opacity: 0;
+            }
+            to {
+              transform: scale(1);
+              opacity: 1;
+            }
+          }
+
+          /* Para pantallas pequeñas, el modal ocupa casi toda la pantalla */
+          @media (max-width: 640px) {
+            .modal-content {
+              max-w: 95vw;
+              max-h: 90vh;
+              margin: auto;
+            }
+          }
         `}</style>
       </div>
     </div>

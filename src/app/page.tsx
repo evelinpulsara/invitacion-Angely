@@ -411,13 +411,13 @@ export default function XVInvitation() {
             {/* Imagen 1: Bebé con gafas */}
             <div 
               className="group cursor-pointer relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
-              onClick={() => openModal('/imagenes/foto2.jpg')}
+              onClick={() => openModal('/imagenes/foto2.jpeg')}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
               <img 
-                src="/imagenes/foto2.jpg" 
+                src="/imagenes/foto2.jpeg" 
                 alt="Recuerdo de infancia 1" 
-                className="w-full h-64 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-48 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="bg-white/90 p-3 rounded-full shadow-lg">
@@ -435,7 +435,7 @@ export default function XVInvitation() {
               <img 
                 src="/imagenes/Foto1.jpg" 
                 alt="Recuerdo de infancia 2" 
-                className="w-full h-64 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-48 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="bg-white/90 p-3 rounded-full shadow-lg">

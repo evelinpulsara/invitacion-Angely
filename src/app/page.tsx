@@ -82,7 +82,7 @@ export default function XVInvitation() {
 
   const handleWhatsapp = () => {
     const phone = '+573113024672';
-    const message = 'Hola, confirmo mi asistencia a la fiesta de XV años de Angely 🎉😸';
+    const message = 'Hola, confirmo mi asistencia a la fiesta de XV años de Angely 🎉😽';
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -169,8 +169,10 @@ export default function XVInvitation() {
       className="min-h-screen relative overflow-x-hidden"
       style={{
         backgroundImage: "url('/imagenes/Fondo.jpeg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundSize: 'contain', // 👈 CAMBIO AQUÍ: De 'cover' a 'contain'
+        backgroundRepeat: 'no-repeat', // 👈 Asegura que no se repita la imagen
+        backgroundPosition: 'center', // 👈 Mantiene la imagen centrada
+        backgroundAttachment: 'fixed', // Opcional: hace que el fondo no se mueva al hacer scroll
       }}
     >
       {/* Contenedor interno con gradiente y padding */}
@@ -401,7 +403,7 @@ export default function XVInvitation() {
                       color: '#38761D', 
                       textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
                     }}>
-                    Quince
+                    15 
                 </h3>
             </div>
             <p className="text-xl font-light mb-4" 

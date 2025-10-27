@@ -14,8 +14,6 @@ export default function XVInvitation() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.5);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalImageSrc, setModalImageSrc] = useState('');
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [processedSapo, setProcessedSapo] = useState<string | null>(null);
@@ -165,37 +163,6 @@ export default function XVInvitation() {
       }
     })();
   }, []);
-
-  // Función para abrir el modal con la imagen seleccionada
-  const openModal = (src: string) => {
-    setModalImageSrc(src);
-    setIsModalOpen(true);
-    document.body.style.overflow = 'hidden'; // Evita scroll en el fondo
-  };
-
-  // Función para cerrar el modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-    document.body.style.overflow = 'auto'; // Restaura el scroll
-  };
-
-  // Cerrar modal al presionar ESC
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isModalOpen) {
-        closeModal();
-      }
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [isModalOpen]);
-
-  // Cerrar modal al hacer clic fuera de la imagen
-  const handleModalClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).classList.contains('modal-overlay')) {
-      closeModal();
-    }
-  };
 
   return (
     <div 
@@ -392,58 +359,6 @@ export default function XVInvitation() {
                 <div className="absolute inset-0 main-photo-glow pointer-events-none"></div>
                 <div className="absolute top-4 right-4">
                   <Crown size={28} className="text-amber-500 drop-shadow-lg animate-pulse" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* NUEVA SECCIÓN: RECUERDOS DE MI INFANCIA */}
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <div className="text-center mb-8">
-            <h3 className="text-3xl font-serif font-bold text-green-800 uppercase tracking-wider" style={{ fontFamily: 'Georgia, serif' }}>
-              Recuerdos de mi infancia
-            </h3>
-            <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-emerald-500 mx-auto mt-4 rounded-full"></div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* Imagen 1: Bebé con gafas */}
-            <div 
-              className="group cursor-pointer relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
-              onClick={() => openModal('/imagenes/Foto2.jpg')}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
-              <div className="bg-white/50 border-2 border-green-200 rounded-2xl p-2 shadow-lg">
-                <img 
-                  src="/imagenes/Foto2.jpg" 
-                  alt="Recuerdo de infancia 1" 
-                  className="w-full h-32 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-white/90 p-2 rounded-full shadow-lg">
-                  <Play size={20} className="text-green-700" />
-                </div>
-              </div>
-            </div>
-
-            {/* Imagen 2: Bebé con vestido verde */}
-            <div 
-              className="group cursor-pointer relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
-              onClick={() => openModal('/imagenes/Foto1.jpg')}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-emerald-100 opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
-              <div className="bg-white/50 border-2 border-green-200 rounded-2xl p-2 shadow-lg">
-                <img 
-                  src="/imagenes/Foto1.jpg" 
-                  alt="Recuerdo de infancia 2" 
-                  className="w-full h-32 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-white/90 p-2 rounded-full shadow-lg">
-                  <Play size={20} className="text-green-700" />
                 </div>
               </div>
             </div>
@@ -750,32 +665,6 @@ export default function XVInvitation() {
           <p className="text-xs text-green-600 font-medium mt-2">Diseñado por: Evelin Pulsara</p>
         </div>
 
-        {/* Modal de Imagen */}
-        {isModalOpen && (
-          <div 
-            className="modal-overlay fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
-            onClick={handleModalClick}
-          >
-            <div className="modal-content relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-4">
-              <button 
-                onClick={closeModal}
-                className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-              <div className="flex justify-center items-center">
-                <img 
-                  src={modalImageSrc} 
-                  alt="Recuerdo de infancia" 
-                  className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-lg"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
         <style jsx>{`
           @keyframes fadeIn {
             from {
@@ -816,35 +705,6 @@ export default function XVInvitation() {
 
           .main-photo-glow {
             animation: glowPulse 4s infinite ease-in-out;
-          }
-
-          /* Estilos para el modal */
-          .modal-overlay {
-            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.8) 100%);
-          }
-
-          .modal-content {
-            animation: slideIn 0.3s ease-out;
-          }
-
-          @keyframes slideIn {
-            from {
-              transform: scale(0.95);
-              opacity: 0;
-            }
-            to {
-              transform: scale(1);
-              opacity: 1;
-            }
-          }
-
-          /* Para pantallas pequeñas, el modal ocupa casi toda la pantalla */
-          @media (max-width: 640px) {
-            .modal-content {
-              max-w: 95vw;
-              max-h: 90vh;
-              margin: auto;
-            }
           }
         `}</style>
       </div>
